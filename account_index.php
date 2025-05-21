@@ -1,6 +1,5 @@
 <?php
 require_once 'vendor/autoload.php';
-require_once __DIR__ . '/image_functions.php';
 
 $dotenv = Dotenv\Dotenv::createImmutable(__DIR__);
 $dotenv->load();
@@ -51,13 +50,6 @@ $file = $_FILES['file'] ?? null;
 });
 
 try {
-    // バリデーション
-    if (empty($name)) {
-        throw new InvalidArgumentException('アカウントを入力してください。');
-    }
-
-    validateName($name); // name_functions.php に定義
-
     $savedFileName = null;
 
     // ファイルがアップロードされている場合のみ処理
