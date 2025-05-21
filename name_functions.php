@@ -1,8 +1,8 @@
 <?php
 function validateName(string $name): void
 {
-    // 全角または半角の日本語・アルファベットを含むか
-    if (!preg_match('/^[\p{L}\p{Zs}ー一-龥ぁ-ゔァ-ヴーａ-ｚＡ-Ｚ々〆〤]+$/u', $name)) {
-        throw new InvalidArgumentException('名前に使用できない文字が含まれています。');
+    // 半角英数字・記号のみ許可（全角・日本語不可）
+    if (!preg_match('/^[a-zA-Z0-9!"#$%&\'()*+,\-\.\/:;<=>?@\[\\\]^_`{|}~]+$/', $name)) {
+        throw new InvalidArgumentException('名前には英数字および記号のみ使用可能です。');
     }
 }
