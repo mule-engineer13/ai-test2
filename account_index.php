@@ -1,7 +1,6 @@
 <?php
 require_once 'vendor/autoload.php';
 require_once __DIR__ . '/image_functions.php';
-require_once __DIR__ . '/name_functions.php';
 
 $dotenv = Dotenv\Dotenv::createImmutable(__DIR__);
 $dotenv->load();
@@ -54,14 +53,16 @@ $file = $_FILES['file'] ?? null;
 try {
     // バリデーション
     if (empty($name)) {
-        throw new InvalidArgumentException('お名前を入力してください。');
+        throw new InvalidArgumentException('アカウントを入力してください。');
     }
 
-    validateName($name); // account_functions.php に定義済み
+    validateName($name); // name_functions.php に定義
+
     $savedFileName = null;
 
-    if ($file && $file['error'] === UPLOAD_ERR_OK) {
-        validateFileSize($file); // ファイルサイズチェック（500KB制限）
+    // ファイルがアップロードされている場合のみ処理
+    if ($file && isset($file['tmp_name']) && is_uploaded_file($file['tmp_name'])) {
+        validateFileSize($file); // 500KB 制限チェック
 
         $uploadDir = __DIR__ . '/uploads';
         if (!is_dir($uploadDir)) {
@@ -73,18 +74,17 @@ try {
         $savedFileName = $safeFileName;
     }
 
-    // DB保存
     $dsn = "mysql:host=$host;dbname=$dbname;charset=$charset";
     $pdo = new PDO($dsn, $user, $pass, [
         PDO::ATTR_ERRMODE => PDO::ERRMODE_EXCEPTION,
         PDO::ATTR_DEFAULT_FETCH_MODE => PDO::FETCH_ASSOC,
     ]);
 
-    $stmt = $pdo->prepare("INSERT INTO accounts (name, file) VALUES (?, ?)");
+    $stmt = $pdo->prepare("INSER INTO accounts (name, file) VALUES (?, ?)");
     $stmt->execute([$name, $savedFileName]);
 
     echo '送信内容を保存しました。ありがとうございました。';
 } catch (Throwable $e) {
     \Sentry\captureException($e);
-    echo $e->getMessage(); // ユーザにエラー内容を返す（開発用）
+    echo $e->getMessage();
 }
